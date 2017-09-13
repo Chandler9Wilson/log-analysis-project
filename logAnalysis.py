@@ -17,6 +17,17 @@ def interactiveHello():
   intro = raw_input("What's your name? ")
   print("Hello %s lets explore the world!" % intro)
 
+# Return three most popular articles of all time from db
+def option1():
+  # Connect to an existing database
+  db = psycopg2.connect(dbInfo)
+  # Open a cursor to perform database operations
+  c = db.cursor()
+
+  c.execute()
+  return c.fetchall()
+  db.close()
+
 def interactive():
   # displaying options to the user
   print(30 * '-')
@@ -24,7 +35,7 @@ def interactive():
   print(30 * '-')
   print('1. Three most popular articles of all time')
   print('2. Most popular authors of all time')
-  print('3. Days where more than 1% of requests lead to errors')
+  print('3. Days where more than 1% of requests leading to errors')
   print(30 * '-')
 
   answer = raw_input('Which report would you like to see: ')
