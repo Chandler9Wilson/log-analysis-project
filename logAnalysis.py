@@ -19,12 +19,13 @@ def interactiveHello():
 
 # Return three most popular articles of all time from db
 def option1():
+  lookFor = 'SELECT author, slug, title, path FROM articles INNER JOIN log ON articles.slug LIKE log.path;'
   # Connect to an existing database
   db = psycopg2.connect(dbInfo)
   # Open a cursor to perform database operations
   c = db.cursor()
 
-  c.execute()
+  c.execute(lookFor)
   return c.fetchall()
   db.close()
 
@@ -38,7 +39,9 @@ def interactive():
   print('3. Days where more than 1% of requests leading to errors')
   print(30 * '-')
 
+  # captures user input
   answer = raw_input('Which report would you like to see: ')
+  # catches characters that can't be converted to int
   try:
     answer = int(answer)
   except:
@@ -49,7 +52,10 @@ def interactive():
 
 
   if answer == 1:
-    print('1. let me get you those.....')
+    print(30 * '-')
+    print('   Results')
+    print(30 * '-')
+    print(option1())
   elif answer == 2:
     print('2. let me get you those.....')
   elif answer == 3:
