@@ -9,11 +9,13 @@ FROM articles, log
 WHERE log.path like '%' || articles.slug;
 
 # This one works pretty well
-# Needs to be improved to filter path better and filter based on status
+# Needs to be improved to filter path better probably using regular expressions
 SELECT title, id,
 (SELECT COUNT (*)
   FROM log
-  WHERE log.path like '%' || articles.slug) AS requests
+  WHERE (log.path like '%' || articles.slug AND log.status = '200 OK')) AS requests
 FROM articles
 ORDER BY requests DESC
 LIMIT 3;
+
+SELECT status FROM log LIMIT 10;
