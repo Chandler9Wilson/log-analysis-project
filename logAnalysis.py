@@ -17,16 +17,34 @@ def interactiveHello():
   intro = raw_input("What's your name? ")
   print("Hello %s lets explore the world!" % intro)
 
+# takes c.fetchall() as the input
+# TODO loop to create a generic name for each row then insert into print pattern
+def formatTable(input):
+  rows = input
+
+  for row in rows:
+     # Write rows to text file
+     title = str(row[0])
+     id = str(row[1])
+     results = str(row[2])
+     print(title + ' | ' + id + ' | ' + results + '\n')
+
 # Return three most popular articles of all time from db
 def option1():
-  lookFor = 'SELECT author, slug, title, path FROM articles INNER JOIN log ON articles.slug LIKE log.path;'
+  lookFor = '''SELECT title, id,
+    (SELECT COUNT (*)
+      FROM log
+      WHERE (log.path like '%' || articles.slug AND log.status = '200 OK')) AS requests
+    FROM articles
+    ORDER BY requests DESC
+    LIMIT 3;'''
   # Connect to an existing database
   db = psycopg2.connect(dbInfo)
   # Open a cursor to perform database operations
   c = db.cursor()
 
   c.execute(lookFor)
-  return c.fetchall()
+  return formatTable(c.fetchall())
   db.close()
 
 def interactive():
