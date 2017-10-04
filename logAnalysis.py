@@ -47,6 +47,10 @@ def option1():
   return formatTable(c.fetchall())
   db.close()
 
+# Return authors sorted by popularity (article views) descending from db
+def option2():
+  
+
 def interactive():
   # displaying options to the user
   print(30 * '-')
