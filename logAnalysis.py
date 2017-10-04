@@ -49,6 +49,23 @@ def option1():
 
 # Return authors sorted by popularity (article views) descending from db
 def option2():
+  lookFor = '''SELECT authors.name, 
+    (SELECT COUNT(*)
+      FROM log, articles
+      WHERE (log.path like '%' || articles.slug AND log.status = '200 OK')
+      AND articles.author = authors.id
+    ) AS requests
+    FROM authors;'''
+  db = psycopg2.connect(dbInfo)
+  # Open a cursor to perform database operations
+  c = db.cursor()
+
+  c.execute(lookFor)
+  return c.fetchall()
+  db.close()
+
+# Return days with more than 1% errors
+def option3():
   
 
 def interactive():
@@ -79,7 +96,10 @@ def interactive():
     print(30 * '-')
     print(option1())
   elif answer == 2:
-    print('2. let me get you those.....')
+    print(30 * '-')
+    print('   Results')
+    print(30 * '-')
+    print(option2())
   elif answer == 3:
     print('3. let me get you those.....')
   else:

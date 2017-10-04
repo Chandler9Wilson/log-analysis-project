@@ -18,11 +18,21 @@ FROM articles
 ORDER BY requests DESC
 LIMIT 3;
 
-SELECT SUM(requests) from (
-  SELECT COUNT(*)
+-- Works for option 2
+SELECT authors.name, 
+(SELECT COUNT(*)
   FROM log, articles
   WHERE (log.path like '%' || articles.slug AND log.status = '200 OK')
-) AS requests;
+  AND articles.author = authors.id
+) AS requests
+FROM authors;
 
 
 SELECT * FROM log  WHERE status != '200 OK' LIMIT 10;
+
+SELECT articles.title, articles.author,
+(SELECT COUNT (*)
+  FROM log
+  WHERE (log.path like '%' || articles.slug AND log.status = '200 OK')) AS requests
+FROM articles
+ORDER BY requests DESC;
