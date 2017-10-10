@@ -4,14 +4,16 @@ from tabulate import tabulate
 
 dbInfo = "dbname=news"
 
-def test():
+# sets up a db connection and cursor then runs a query and returns a formated table
+# lookFor is the sql query, headers is the headers of the returned table if any 
+def query(lookFor, headers):
   # Connect to an existing database
   db = psycopg2.connect(dbInfo)
   # Open a cursor to perform database operations
   c = db.cursor()
 
-  c.execute("select author from articles;")
-  return c.fetchall()
+  c.execute(lookFor)
+  return tabulate(c.fetchall(), headers, tablefmt="psql")
   db.close()
 
 def interactiveHello():
@@ -29,14 +31,7 @@ def option1():
     LIMIT 3;'''
   headers = ["Title", "Author ID", "Article Views"]
   
-  # Connect to an existing database
-  db = psycopg2.connect(dbInfo)
-  # Open a cursor to perform database operations
-  c = db.cursor()
-
-  c.execute(lookFor)
-  return tabulate(c.fetchall(), headers, tablefmt="psql")
-  db.close()
+  return query(lookFor, headers)
 
 # Return authors sorted by popularity (article views) descending from db
 def option2():
@@ -49,13 +44,7 @@ def option2():
     FROM authors;'''
   headers = ["Author", "Views"]
 
-  db = psycopg2.connect(dbInfo)
-  # Open a cursor to perform database operations
-  c = db.cursor()
-
-  c.execute(lookFor)
-  return tabulate(c.fetchall(), headers, tablefmt="psql")
-  db.close()
+  return query(lookFor, headers)
 
 # Return days with more than 1% errors
 def option3():
@@ -77,13 +66,7 @@ def option3():
     WHERE errors_by_day.date = requests_by_day.date AND (errors * 100 / requests) > 1;'''
   headers = ["Date", "Errors", "Requests", "Percent Errors"]
   
-  db = psycopg2.connect(dbInfo)
-  # Open a cursor to perform database operations
-  c = db.cursor()
-
-  c.execute(lookFor)
-  return tabulate(c.fetchall(), headers, tablefmt="psql")
-  db.close()
+  return query(lookFor, headers)
 
 def interactive():
   # displaying options to the user
