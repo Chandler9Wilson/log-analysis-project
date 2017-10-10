@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import psycopg2
+from tabulate import tabulate
 
 dbInfo = "dbname=news"
 
@@ -17,18 +18,6 @@ def interactiveHello():
   intro = raw_input("What's your name? ")
   print("Hello %s lets explore the world!" % intro)
 
-# takes c.fetchall() as the input
-# TODO loop to create a generic name for each row then insert into print pattern
-def formatTable(input):
-  rows = input
-
-  for row in rows:
-     # Write rows to text file
-     title = str(row[0])
-     id = str(row[1])
-     results = str(row[2])
-     print(title + ' | ' + id + ' | ' + results + '\n')
-
 # Return three most popular articles of all time from db
 def option1():
   lookFor = '''SELECT title, id,
@@ -38,13 +27,15 @@ def option1():
     FROM articles
     ORDER BY requests DESC
     LIMIT 3;'''
+  headers = ["Title", "Author ID", "Article Views"]
+  
   # Connect to an existing database
   db = psycopg2.connect(dbInfo)
   # Open a cursor to perform database operations
   c = db.cursor()
 
   c.execute(lookFor)
-  return formatTable(c.fetchall())
+  return tabulate(c.fetchall(), headers, tablefmt="psql")
   db.close()
 
 # Return authors sorted by popularity (article views) descending from db
@@ -56,17 +47,43 @@ def option2():
       AND articles.author = authors.id
     ) AS requests
     FROM authors;'''
+  headers = ["Author", "Views"]
+
   db = psycopg2.connect(dbInfo)
   # Open a cursor to perform database operations
   c = db.cursor()
 
   c.execute(lookFor)
-  return c.fetchall()
+  return tabulate(c.fetchall(), headers, tablefmt="psql")
   db.close()
 
 # Return days with more than 1% errors
 def option3():
+  lookFor = '''
+    WITH errors_by_day AS (
+        SELECT DATE(time), COUNT(time) AS errors
+        FROM log
+        WHERE status != '200 OK'
+        GROUP BY CAST(log.time AS DATE)
+      ), requests_by_day AS (
+        SELECT DATE(time), COUNT(time) AS requests
+        FROM log
+        GROUP BY CAST(log.time AS DATE)
+      )
+    SELECT errors_by_day.date, errors, requests,
+    --works but only displays an int
+    (errors * 100 / requests) AS percent_errors
+    FROM errors_by_day, requests_by_day 
+    WHERE errors_by_day.date = requests_by_day.date AND (errors * 100 / requests) > 1;'''
+  headers = ["Date", "Errors", "Requests", "Percent Errors"]
   
+  db = psycopg2.connect(dbInfo)
+  # Open a cursor to perform database operations
+  c = db.cursor()
+
+  c.execute(lookFor)
+  return tabulate(c.fetchall(), headers, tablefmt="psql")
+  db.close()
 
 def interactive():
   # displaying options to the user
@@ -101,7 +118,10 @@ def interactive():
     print(30 * '-')
     print(option2())
   elif answer == 3:
-    print('3. let me get you those.....')
+    print(30 * '-')
+    print('   Results')
+    print(30 * '-')
+    print(option3())
   else:
     print(30 * '-')
     print('Invalid number try again')
