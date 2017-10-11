@@ -1,8 +1,20 @@
 #!/usr/bin/env python
 import psycopg2
+import sys
 from tabulate import tabulate
 
 dbInfo = "dbname=news"
+
+
+# sets up a db connecetion and returns db and c if successful
+def connect(databaseName):
+    try:
+        db = psycopg2.connect(databaseName)
+        c = db.cursor()
+        return db, c
+    except psycopg2.Error as e:
+        print "Unable to connect to database"
+        sys.exit(1)
 
 
 # runs a query and returns a formated table
@@ -11,13 +23,12 @@ def query(lookFor, headers):
     # headers is the headers of the returned table if any
 
     # Connect to an existing database
-    db = psycopg2.connect(dbInfo)
-    # Open a cursor to perform database operations
-    c = db.cursor()
+    db, c = connect(dbInfo)
 
     c.execute(lookFor)
-    return tabulate(c.fetchall(), headers, tablefmt="psql")
+    results = c.fetchall()
     db.close()
+    return tabulate(results, headers, tablefmt="psql")
 
 
 def interactiveHello():
@@ -97,8 +108,11 @@ def interactive():
         print(30 * '-')
         print('Invalid option please enter a valid number')
         print(30 * '-')
-    return interactive()
+        return interactive()
 
+    # reviewer suggested if __name__ == '__main__' to capture if
+    # called within a module not sure which parts should be under?
+    # https://stackoverflow.com/questions/419163/what-does-if-name-main-do
     if answer == 1:
         print(30 * '-')
         print('   Results')
@@ -118,6 +132,6 @@ def interactive():
         print(30 * '-')
         print('Invalid number try again')
         print(30 * '-')
-    return interactive()
+        return interactive()
 
 interactive()
